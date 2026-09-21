@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE BEST DRINK!</title>
+  <!-- Google Fonts for Kid-Friendly Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti Library for Vote Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. GLOBAL STYLES & VARIABLES
+       ========================================================================== */
+    :root {
+      --primary: #FF5964;
+      --secondary: #35A7FF;
+      --accent: #FFE74C;
+      --purple: #9B51E0;
+      --green: #2ECC71;
+      --orange: #FF9F43;
+      --dark: #2D3142;
+      --light: #F4F7F6;
+      --card-bg: #FFFFFF;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #E0C3FC 0%, #8EC5FC 100%);
+      min-height: 100vh;
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .btn-bold {
+      font-family: 'Fredoka One', cursive;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Screen Views Setup */
+    .screen {
+      display: none;
+      background: var(--light);
+      border-radius: var(--radius-lg);
+      padding: 35px;
+      box-shadow: var(--shadow);
+      margin-top: 10px;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Standard Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 36px;
+      font-size: 1.5rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+      font-family: 'Fredoka One', cursive;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      gap: 10px;
+    }
+
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+    }
+
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-secondary { background-color: var(--secondary); color: white; }
+    .btn-accent { background-color: var(--accent); color: var(--dark); }
+    .btn-green { background-color: var(--green); color: white; }
+    .btn-purple { background-color: var(--purple); color: white; }
+
+    /* Teacher Quick Button Floating Top Right */
+    .teacher-top-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 3px solid var(--purple);
+      color: var(--purple);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 100;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: 0.2s;
+    }
+    .teacher-top-btn:hover { background: var(--purple); color: white; }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--purple);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 40px;
+      font-size: 1.5rem;
+      font-family: 'Fredoka One', cursive;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       2. SCREEN 1: ENTER NAME
+       ========================================================================== */
+    #screen-1 {
+      text-align: center;
+      padding: 50px 20px;
+      max-width: 650px;
+      margin: 40px auto 0 auto;
+    }
+
+    .app-title {
+      font-size: 3.5rem;
+      color: var(--primary);
+      text-shadow: 3px 3px 0 var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .app-subtitle {
+      font-size: 1.6rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 30px;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.8rem;
+      border: 4px solid var(--secondary);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: bold;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .name-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(255, 89, 100, 0.3);
+    }
+
+    .vote-counter-badge {
+      display: inline-block;
+      margin-top: 20px;
+      background: white;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: bold;
+      color: var(--purple);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    /* ==========================================================================
+       3. SCREEN 2: CHOOSE YOUR DRINK
+       ========================================================================== */
+    .screen-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .drinks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .drink-card {
+      background: var(--card-bg);
+      border: 4px solid #EAEAEA;
+      border-radius: var(--radius-md);
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .drink-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--secondary);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .drink-card.selected {
+      border-color: var(--primary);
+      background: #FFF0F1;
+      transform: scale(1.03);
+      box-shadow: 0 0 20px rgba(255, 89, 100, 0.3);
+    }
+
+    .drink-img-wrap {
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .drink-img-wrap svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .drink-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .vote-panel {
+      text-align: center;
+      background: #EBF5FF;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .selected-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--secondary);
+    }
+
+    /* Vote Success Container */
+    .vote-success-box {
+      text-align: center;
+      padding: 40px;
+      background: #E8F8F0;
+      border: 3px solid var(--green);
+      border-radius: var(--radius-md);
+    }
+
+    .action-buttons-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    /* ==========================================================================
+       4. SCREEN 3: CLASS RESULTS & GRAPH
+       ========================================================================== */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .summary-pills {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .pill {
+      background: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      border-left: 6px solid var(--secondary);
+    }
+
+    .pill-winner { border-left-color: var(--accent); background: #FFFDE7; }
+
+    /* Bar Graph Layout */
+    .graph-container {
+      background: white;
+      padding: 25px 20px 10px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 35px;
+      overflow-x: auto;
+    }
+
+    .bars-wrapper {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 320px;
+      padding-top: 40px;
+      border-bottom: 4px solid var(--dark);
+      min-width: 750px;
+    }
+
+    .bar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      flex: 1;
+      margin: 0 4px;
+    }
+
+    .bar-val {
+      font-size: 1.3rem;
+      font-weight: bold;
+      font-family: 'Fredoka One', cursive;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .bar-fill {
+      width: 80%;
+      max-width: 55px;
+      background: var(--secondary);
+      border-radius: 12px 12px 0 0;
+      transition: height 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      min-height: 6px;
+    }
+
+    .bar-label {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-align: center;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+    }
+
+    /* Student Vote List Table */
+    .section-title {
+      font-size: 2rem;
+      color: var(--purple);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .students-table-wrap {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 35px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .student-card {
+      background: var(--light);
+      padding: 10px 16px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid var(--purple);
+    }
+
+    .student-card .s-name { font-weight: bold; font-size: 1.1rem; }
+    .student-card .s-drink { color: #555; font-size: 0.95rem; font-weight: 600; }
+
+    /* ESL Questions Section */
+    .esl-section {
+      background: #FFF8E7;
+      border: 3px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 25px;
+    }
+
+    .esl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .esl-card {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--dark);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .esl-num {
+      background: var(--accent);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       5. TEACHER CONTROL MODAL
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-title { font-size: 2.2rem; color: var(--purple); margin-bottom: 20px; }
+
+    .modal-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-danger { background-color: var(--primary); color: white; }
+    .btn-close { background-color: #888; color: white; }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      .app-title { font-size: 2.5rem; }
+      .app-subtitle { font-size: 1.2rem; }
+      .drinks-grid { grid-template-columns: repeat(2, 1fr); }
+      .screen { padding: 20px; }
+      .action-buttons-wrap { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Teacher Button -->
+  <button class="teacher-top-btn" onclick="openTeacherModal()">⚙️ Teacher</button>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">Hi! 👋</div>
+
+  <div class="container">
+    
+    <!-- ==========================================================================
+         SCREEN 1 — ENTER YOUR ENGLISH NAME
+         ========================================================================== -->
+    <div id="screen-1" class="screen active">
+      <h1 class="app-title">THE BEST DRINK!</h1>
+      <p class="app-subtitle">First, write your English name.</p>
+
+      <div class="input-group">
+        <input type="text" id="student-name-input" class="name-input" placeholder="Write your English name here" autocomplete="off">
+      </div>
+
+      <button class="btn btn-primary" onclick="submitName()">START!</button>
+
+      <div>
+        <span id="screen1-vote-counter" class="vote-counter-badge">Total Votes: 0</span>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         SCREEN 2 — CHOOSE YOUR BEST DRINK
+         ========================================================================== -->
+    <div id="screen-2" class="screen">
+      <div class="screen-header">
+        <h1 class="app-title" style="font-size: 2.8rem;">What is the best drink?</h1>
+        <p class="app-subtitle" id="greeting-subtitle">Hi! Choose ONE drink you like best!</p>
+      </div>
+
+      <!-- Drink Voting Form View -->
+      <div id="voting-form-wrap">
+        <div class="drinks-grid" id="drinks-grid">
+          <!-- 12 Cards generated by JS -->
+        </div>
+
+        <div class="vote-panel">
+          <div id="selected-drink-display" class="selected-text">Click a drink above! 🥤</div>
+          <button id="vote-btn" class="btn btn-green" style="display: none;" onclick="submitVote()">VOTE!</button>
+        </div>
+      </div>
+
+      <!-- Drink Voted Confirmation View -->
+      <div id="voted-confirmation" class="vote-success-box" style="display: none;">
+        <h2 id="thank-you-title" style="font-size: 2.5rem; color: var(--green); margin-bottom: 10px;">Thank you! 🎉</h2>
+        <p id="voted-drink-text" style="font-size: 1.6rem; font-weight: bold; margin-bottom: 25px;">You voted for Bubble Tea.</p>
+        
+        <div class="action-buttons-wrap">
+          <button class="btn btn-purple" onclick="prepareNextStudent()">NEXT STUDENT 👤</button>
+          <button class="btn btn-secondary" onclick="showScreen(3)">SHOW CLASS RESULTS 📊</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         SCREEN 3 — CLASS RESULTS
+         ========================================================================== -->
+    <div id="screen-3" class="screen">
+      <div class="results-header">
+        <h1 class="app-title" style="font-size: 2.5rem; margin-bottom: 0;">THE BEST DRINK — CLASS VOTES</h1>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-purple" style="font-size: 1rem; padding: 10px 20px;" onclick="prepareNextStudent()">➕ Add Another Vote</button>
+        </div>
+      </div>
+
+      <!-- Summary Pills -->
+      <div class="summary-pills">
+        <div class="pill" id="total-students-pill">Total Students: 0</div>
+        <div class="pill pill-winner" id="popular-drink-pill">The most popular drink is —</div>
+      </div>
+
+      <!-- Bar Graph -->
+      <div class="graph-container">
+        <div class="bars-wrapper" id="bars-wrapper">
+          <!-- Bars generated by JS -->
+        </div>
+      </div>
+
+      <!-- Student Vote List -->
+      <h2 class="section-title">👥 WHO CHOSE WHAT?</h2>
+      <div class="students-table-wrap">
+        <div class="student-grid" id="student-grid">
+          <!-- Student cards generated by JS -->
+        </div>
+      </div>
+
+      <!-- ESL Questions Section -->
+      <div class="esl-section">
+        <h2 class="section-title" style="color: var(--dark);">💬 ESL QUESTIONS</h2>
+        <div class="esl-grid">
+          <div class="esl-card"><span class="esl-num">1</span> What is the best drink?</div>
+          <div class="esl-card"><span class="esl-num">2</span> How many students like milk?</div>
+          <div class="esl-card"><span class="esl-num">3</span> How many students like bubble tea?</div>
+          <div class="esl-card"><span class="esl-num">4</span> How many students like juice?</div>
+          <div class="esl-card"><span class="esl-num">5</span> Which drink has the most votes?</div>
+          <div class="esl-card"><span class="esl-num">6</span> Which drink has the fewest votes?</div>
+          <div class="esl-card"><span class="esl-num">7</span> Who likes bubble tea?</div>
+          <div class="esl-card"><span class="esl-num">8</span> Who likes milkshake?</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       TEACHER MODAL
+       ========================================================================== -->
+  <div id="teacher-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="modal-title">⚙️ Teacher Controls</h2>
+      <div class="modal-buttons">
+        <button class="btn btn-purple" onclick="prepareNextStudent(); closeTeacherModal();">➕ Next Student Vote</button>
+        <button class="btn btn-secondary" onclick="showScreen(3); closeTeacherModal();">Show Class Results</button>
+        <button class="btn btn-danger" onclick="resetPoll()">Reset All Votes</button>
+        <button class="btn btn-close" onclick="closeTeacherModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC
+       ========================================================================== -->
+  <script>
+    /* --------------------------------------------------------------------------
+       1. DATA STRUCTURES & SVG ARTWORK
+       -------------------------------------------------------------------------- */
+    const DRINKS = [
+      { id: 'milkshake', name: 'Milkshake', color: '#FF6B6B', svg: `<svg viewBox="0 0 64 64"><path d="M22 22 L26 58 C26 60 38 60 38 58 L42 22 Z" fill="#FFE3E3" stroke="#333" stroke-width="2"/><path d="M20 22 C20 14 44 14 44 22 Z" fill="#FF8E8E"/><circle cx="32" cy="14" r="5" fill="#FF2E93"/><rect x="34" y="2" width="4" height="20" rx="2" transform="rotate(15 34 2)" fill="#FFD166"/></svg>` },
+      { id: 'smoothie', name: 'Smoothie', color: '#4ECDC4', svg: `<svg viewBox="0 0 64 64"><path d="M20 24 L24 58 C24 60 40 60 40 58 L44 24 Z" fill="#4ECDC4" stroke="#333" stroke-width="2"/><path d="M18 24 Q32 18 46 24 Z" fill="#45B7AA"/><path d="M26 12 Q32 6 38 12 Z" fill="#FF6B6B"/><rect x="30" y="4" width="4" height="22" fill="#FFD166"/></svg>` },
+      { id: 'juice', name: 'Juice', color: '#FFA07A', svg: `<svg viewBox="0 0 64 64"><path d="M22 20 L25 58 Q32 60 39 58 L42 20 Z" fill="#FFB07C" stroke="#333" stroke-width="2"/><circle cx="32" cy="38" r="8" fill="#FF8C42" opacity="0.6"/><rect x="30" y="4" width="4" height="22" fill="#06D6A0" transform="rotate(-10 30 4)"/></svg>` },
+      { id: 'lemonade', name: 'Lemonade', color: '#FFE66D', svg: `<svg viewBox="0 0 64 64"><path d="M20 20 L24 58 Q32 60 40 58 L44 20 Z" fill="#FFE66D" stroke="#333" stroke-width="2"/><circle cx="32" cy="30" r="10" fill="#FFF" opacity="0.4"/><path d="M16 20 Q32 14 48 20 Z" fill="#F7B801"/></svg>` },
+      { id: 'coffee', name: 'Coffee', color: '#6F4E37', svg: `<svg viewBox="0 0 64 64"><path d="M16 24 L20 54 Q32 58 44 54 L48 24 Z" fill="#6F4E37" stroke="#333" stroke-width="2"/><path d="M48 28 C56 28 56 40 48 44" fill="none" stroke="#333" stroke-width="3"/><path d="M14 24 Q32 20 50 24 Z" fill="#D4A373"/></svg>` },
+      { id: 'hotchocolate', name: 'Hot Chocolate', color: '#8B5A2B', svg: `<svg viewBox="0 0 64 64"><rect x="16" y="24" width="32" height="32" rx="6" fill="#8B5A2B" stroke="#333" stroke-width="2"/><path d="M48 30 C54 30 54 42 48 44" fill="none" stroke="#333" stroke-width="3"/><rect x="22" y="20" width="8" height="6" rx="2" fill="#FFF"/><rect x="34" y="18" width="8" height="6" rx="2" fill="#FFF"/></svg>` },
+      { id: 'soymilk', name: 'Soy Milk', color: '#F4A261', svg: `<svg viewBox="0 0 64 64"><path d="M22 20 L26 12 L38 12 L42 20 L40 58 L24 58 Z" fill="#E9C46A" stroke="#333" stroke-width="2"/><rect x="26" y="30" width="12" height="16" fill="#FFF" rx="2"/><text x="32" y="42" font-size="10" text-anchor="middle" font-weight="bold" fill="#333">SOY</text></svg>` },
+      { id: 'milk', name: 'Milk', color: '#A8DADC', svg: `<svg viewBox="0 0 64 64"><path d="M22 20 L26 10 L38 10 L42 20 L40 58 L24 58 Z" fill="#EDF2F4" stroke="#333" stroke-width="2"/><path d="M22 20 L42 20" stroke="#333" stroke-width="2"/><path d="M24 34 Q32 38 40 34 L40 58 L24 58 Z" fill="#A8DADC"/></svg>` },
+      { id: 'bubbletea', name: 'Bubble Tea', color: '#DDA15E', svg: `<svg viewBox="0 0 64 64"><path d="M20 20 L24 58 Q32 60 40 58 L44 20 Z" fill="#DDA15E" stroke="#333" stroke-width="2"/><circle cx="28" cy="50" r="3" fill="#333"/><circle cx="36" cy="50" r="3" fill="#333"/><circle cx="32" cy="44" r="3" fill="#333"/><rect x="30" y="4" width="4" height="24" fill="#BC6C25"/></svg>` },
+      { id: 'tea', name: 'Tea', color: '#2A9D8F', svg: `<svg viewBox="0 0 64 64"><path d="M16 26 L20 54 Q32 58 44 54 L48 26 Z" fill="#2A9D8F" stroke="#333" stroke-width="2"/><path d="M48 30 C54 30 54 42 48 44" fill="none" stroke="#333" stroke-width="3"/><path d="M32 14 L32 26" stroke="#888" stroke-width="1"/><rect x="28" y="20" width="8" height="10" fill="#E9C46A"/></svg>` },
+      { id: 'cola', name: 'Cola', color: '#E63946', svg: `<svg viewBox="0 0 64 64"><path d="M22 18 L24 58 Q32 60 40 58 L42 18 Z" fill="#331A15" stroke="#333" stroke-width="2"/><rect x="22" y="30" width="20" height="14" fill="#E63946"/><path d="M20 18 Q32 14 44 18 Z" fill="#1D3557"/><rect x="30" y="2" width="4" height="20" fill="#FFF" transform="rotate(8 30 2)"/></svg>` },
+      { id: 'soda', name: 'Soda', color: '#457B9D', svg: `<svg viewBox="0 0 64 64"><path d="M22 18 L24 58 Q32 60 40 58 L42 18 Z" fill="#A8DADC" stroke="#333" stroke-width="2"/><circle cx="28" cy="30" r="2" fill="#FFF"/><circle cx="36" cy="36" r="3" fill="#FFF"/><circle cx="30" cy="44" r="2" fill="#FFF"/><rect x="30" y="2" width="4" height="20" fill="#E63946" transform="rotate(-5 30 2)"/></svg>` }
+    ];
+
+    /* App State stored in LocalStorage */
+    let appState = {
+      currentStudentName: '',
+      selectedDrinkId: null,
+      votes: [] // Each entry: { name: "Anna", drinkId: "bubbletea", drinkName: "Bubble Tea" }
+    };
+
+    /* --------------------------------------------------------------------------
+       2. INITIALIZATION & LOCALSTORAGE MANAGEMENT
+       -------------------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      renderDrinkCards();
+      updateVoteCounterBadge();
+    });
+
+    function loadState() {
+      const saved = localStorage.getItem('best_drink_app_state');
+      if (saved) {
+        try {
+          appState = JSON.parse(saved);
+        } catch(e) {
+          console.error("Failed to parse state", e);
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('best_drink_app_state', JSON.stringify(appState));
+      updateVoteCounterBadge();
+    }
+
+    function updateVoteCounterBadge() {
+      const total = appState.votes ? appState.votes.length : 0;
+      document.getElementById('screen1-vote-counter').textContent = `Total Class Votes Saved: ${total}`;
+    }
+
+    /* --------------------------------------------------------------------------
+       3. NAVIGATION & TOASTS
+       -------------------------------------------------------------------------- */
+    function showScreen(screenNumber) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`screen-${screenNumber}`);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      if (screenNumber === 3) {
+        renderResults();
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    /* --------------------------------------------------------------------------
+       4. SCREEN 1 LOGIC: NAME ENTRY
+       -------------------------------------------------------------------------- */
+    function submitName() {
+      const input = document.getElementById('student-name-input');
+      const name = input.value.trim();
+
+      if (!name) {
+        alert('Please write your English name first! 😊');
+        return;
+      }
+
+      appState.currentStudentName = name;
+
+      showToast(`Hi, ${name}! 👋`);
+
+      // Update Screen 2 Greeting Subtitle
+      document.getElementById('greeting-subtitle').textContent = `Hi, ${name}! Choose ONE drink you like best!`;
+
+      // Reset voting card selection for the new student
+      resetVotingFormView();
+
+      // Navigate to Screen 2 after brief pause
+      setTimeout(() => {
+        showScreen(2);
+      }, 600);
+    }
+
+    /* --------------------------------------------------------------------------
+       5. SCREEN 2 LOGIC: CHOOSE DRINK & VOTE
+       -------------------------------------------------------------------------- */
+    function renderDrinkCards() {
+      const grid = document.getElementById('drinks-grid');
+      grid.innerHTML = '';
+
+      DRINKS.forEach(drink => {
+        const card = document.createElement('div');
+        card.className = 'drink-card';
+        card.dataset.id = drink.id;
+        card.onclick = () => selectDrink(drink);
+
+        card.innerHTML = `
+          <div class="drink-img-wrap">${drink.svg}</div>
+          <div class="drink-name">${drink.name}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function selectDrink(drink) {
+      appState.selectedDrinkId = drink.id;
+
+      // Highlight Card UI
+      document.querySelectorAll('.drink-card').forEach(c => c.classList.remove('selected'));
+      const selectedCard = document.querySelector(`.drink-card[data-id="${drink.id}"]`);
+      if (selectedCard) selectedCard.classList.add('selected');
+
+      // Update Status Text and Show Vote Button
+      document.getElementById('selected-drink-display').textContent = `You chose ${drink.name}!`;
+      document.getElementById('vote-btn').style.display = 'inline-block';
+    }
+
+    function submitVote() {
+      if (!appState.selectedDrinkId || !appState.currentStudentName) return;
+
+      const drinkObj = DRINKS.find(d => d.id === appState.selectedDrinkId);
+      if (!drinkObj) return;
+
+      // Record Vote
+      appState.votes.push({
+        name: appState.currentStudentName,
+        drinkId: drinkObj.id,
+        drinkName: drinkObj.name
+      });
+      saveState();
+
+      // Trigger Confetti Celebration
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      }
+
+      showVotedConfirmation(drinkObj.name);
+    }
+
+    function showVotedConfirmation(drinkName) {
+      document.getElementById('voting-form-wrap').style.display = 'none';
+      document.getElementById('voted-confirmation').style.display = 'block';
+
+      document.getElementById('thank-you-title').textContent = `Thank you, ${appState.currentStudentName}! 🎉`;
+      document.getElementById('voted-drink-text').textContent = `You voted for ${drinkName}.`;
+    }
+
+    function resetVotingFormView() {
+      document.getElementById('voting-form-wrap').style.display = 'block';
+      document.getElementById('voted-confirmation').style.display = 'none';
+      document.getElementById('selected-drink-display').textContent = 'Click a drink above! 🥤';
+      document.getElementById('vote-btn').style.display = 'none';
+      document.querySelectorAll('.drink-card').forEach(c => c.classList.remove('selected'));
+      appState.selectedDrinkId = null;
+    }
+
+    // Function to transition to the next student
+    function prepareNextStudent() {
+      appState.currentStudentName = '';
+      appState.selectedDrinkId = null;
+      document.getElementById('student-name-input').value = '';
+      resetVotingFormView();
+      showScreen(1);
+      
+      // Auto focus on name input for convenience
+      setTimeout(() => {
+        document.getElementById('student-name-input').focus();
+      }, 300);
+    }
+
+    /* --------------------------------------------------------------------------
+       6. SCREEN 3 LOGIC: GRAPH & CLASS RESULTS
+       -------------------------------------------------------------------------- */
+    function renderResults() {
+      const votes = appState.votes || [];
+      const totalStudents = votes.length;
+
+      // Count votes per drink
+      const counts = {};
+      DRINKS.forEach(d => counts[d.id] = 0);
+      votes.forEach(v => {
+        if (counts[v.drinkId] !== undefined) {
+          counts[v.drinkId]++;
+        }
+      });
+
+      // Update Total Summary Pill
+      document.getElementById('total-students-pill').textContent = `Total Students: ${totalStudents}`;
+
+      // Calculate Most Popular Drink(s)
+      let maxVotes = 0;
+      DRINKS.forEach(d => {
+        if (counts[d.id] > maxVotes) maxVotes = counts[d.id];
+      });
+
+      const popularPill = document.getElementById('popular-drink-pill');
+      if (totalStudents === 0 || maxVotes === 0) {
+        popularPill.textContent = "The most popular drink is —";
+      } else {
+        const topDrinks = DRINKS.filter(d => counts[d.id] === maxVotes).map(d => d.name);
+        if (topDrinks.length === 1) {
+          popularPill.textContent = `The most popular drink is ${topDrinks[0]}! 🏆`;
+        } else if (topDrinks.length === 2) {
+          popularPill.textContent = `The most popular drinks are ${topDrinks[0]} and ${topDrinks[1]}! 🏆`;
+        } else {
+          popularPill.textContent = `Tie: ${topDrinks.slice(0, 3).join(', ')}... 🏆`;
+        }
+      }
+
+      // Render Bar Chart
+      const barsWrapper = document.getElementById('bars-wrapper');
+      barsWrapper.innerHTML = '';
+
+      DRINKS.forEach(drink => {
+        const voteCount = counts[drink.id];
+        // Calculate height percentage relative to max votes or fallback
+        const heightPercent = maxVotes > 0 ? (voteCount / maxVotes) * 80 : 0;
+
+        const col = document.createElement('div');
+        col.className = 'bar-column';
+        col.innerHTML = `
+          <div class="bar-val">${voteCount}</div>
+          <div class="bar-fill" style="height: ${Math.max(heightPercent, 3)}%; background-color: ${drink.color};"></div>
+          <div class="bar-label">${drink.name}</div>
+        `;
+        barsWrapper.appendChild(col);
+      });
+
+      // Render Alphabetically Sorted Student Vote List
+      const studentGrid = document.getElementById('student-grid');
+      studentGrid.innerHTML = '';
+
+      if (votes.length === 0) {
+        studentGrid.innerHTML = '<p style="color:#888; grid-column: 1/-1;">No votes recorded yet.</p>';
+      } else {
+        // Sort votes alphabetically by student name
+        const sortedVotes = [...votes].sort((a, b) => a.name.localeCompare(b.name));
+        sortedVotes.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'student-card';
+          card.innerHTML = `
+            <span class="s-name">${escapeHTML(item.name)}</span>
+            <span class="s-drink">${escapeHTML(item.drinkName)}</span>
+          `;
+          studentGrid.appendChild(card);
+        });
+      }
+    }
+
+    // Security helper to prevent HTML injection in student names
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    /* --------------------------------------------------------------------------
+       7. TEACHER CONTROLS & MODAL
+       -------------------------------------------------------------------------- */
+    function openTeacherModal() {
+      document.getElementById('teacher-modal').classList.add('active');
+    }
+
+    function closeTeacherModal() {
+      document.getElementById('teacher-modal').classList.remove('active');
+    }
+
+    function resetPoll() {
+      const confirmed = confirm("Are you sure you want to reset all votes?");
+      if (confirmed) {
+        // Reset state
+        appState = {
+          currentStudentName: '',
+          selectedDrinkId: null,
+          votes: []
+        };
+        saveState();
+
+        // Clear input field
+        document.getElementById('student-name-input').value = '';
+
+        closeTeacherModal();
+        resetVotingFormView();
+        showScreen(1);
+        showToast("Poll reset successfully! 🔄");
+      }
+    }
+  </script>
+</body>
+</html>
